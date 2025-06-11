@@ -1,0 +1,125 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "namespaces_az204svcbustopic29279_name": {
+            "defaultValue": "az204svcbustopic29279",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.ServiceBus/namespaces",
+            "apiVersion": "2024-01-01",
+            "name": "[parameters('namespaces_az204svcbustopic29279_name')]",
+            "location": "eastus",
+            "sku": {
+                "name": "Standard",
+                "tier": "Standard"
+            },
+            "properties": {
+                "premiumMessagingPartitions": 0,
+                "minimumTlsVersion": "1.2",
+                "publicNetworkAccess": "Enabled",
+                "disableLocalAuth": false,
+                "zoneRedundant": true
+            }
+        },
+        {
+            "type": "Microsoft.ServiceBus/namespaces/authorizationrules",
+            "apiVersion": "2024-01-01",
+            "name": "[concat(parameters('namespaces_az204svcbustopic29279_name'), '/RootManageSharedAccessKey')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_az204svcbustopic29279_name'))]"
+            ],
+            "properties": {
+                "rights": [
+                    "Listen",
+                    "Manage",
+                    "Send"
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ServiceBus/namespaces/networkrulesets",
+            "apiVersion": "2024-01-01",
+            "name": "[concat(parameters('namespaces_az204svcbustopic29279_name'), '/default')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_az204svcbustopic29279_name'))]"
+            ],
+            "properties": {
+                "publicNetworkAccess": "Enabled",
+                "defaultAction": "Allow",
+                "virtualNetworkRules": [],
+                "ipRules": [],
+                "trustedServiceAccessEnabled": false
+            }
+        },
+        {
+            "type": "Microsoft.ServiceBus/namespaces/topics",
+            "apiVersion": "2024-01-01",
+            "name": "[concat(parameters('namespaces_az204svcbustopic29279_name'), '/sciencereadings')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_az204svcbustopic29279_name'))]"
+            ],
+            "properties": {
+                "maxMessageSizeInKilobytes": 256,
+                "defaultMessageTimeToLive": "P10675199DT2H48M5.4775807S",
+                "maxSizeInMegabytes": 1024,
+                "requiresDuplicateDetection": false,
+                "duplicateDetectionHistoryTimeWindow": "PT10M",
+                "enableBatchedOperations": true,
+                "status": "Active",
+                "supportOrdering": true,
+                "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
+                "enablePartitioning": false,
+                "enableExpress": false
+            }
+        },
+        {
+            "type": "Microsoft.ServiceBus/namespaces/topics/subscriptions",
+            "apiVersion": "2024-01-01",
+            "name": "[concat(parameters('namespaces_az204svcbustopic29279_name'), '/sciencereadings/scientists')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.ServiceBus/namespaces/topics', parameters('namespaces_az204svcbustopic29279_name'), 'sciencereadings')]",
+                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_az204svcbustopic29279_name'))]"
+            ],
+            "properties": {
+                "isClientAffine": false,
+                "lockDuration": "PT1M",
+                "requiresSession": false,
+                "defaultMessageTimeToLive": "P10675199DT2H48M5.4775807S",
+                "deadLetteringOnMessageExpiration": false,
+                "deadLetteringOnFilterEvaluationExceptions": true,
+                "maxDeliveryCount": 10,
+                "status": "Active",
+                "enableBatchedOperations": true,
+                "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S"
+            }
+        },
+        {
+            "type": "Microsoft.ServiceBus/namespaces/topics/subscriptions/rules",
+            "apiVersion": "2024-01-01",
+            "name": "[concat(parameters('namespaces_az204svcbustopic29279_name'), '/sciencereadings/scientists/$Default')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.ServiceBus/namespaces/topics/subscriptions', parameters('namespaces_az204svcbustopic29279_name'), 'sciencereadings', 'scientists')]",
+                "[resourceId('Microsoft.ServiceBus/namespaces/topics', parameters('namespaces_az204svcbustopic29279_name'), 'sciencereadings')]",
+                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_az204svcbustopic29279_name'))]"
+            ],
+            "properties": {
+                "action": {},
+                "filterType": "SqlFilter",
+                "sqlFilter": {
+                    "sqlExpression": "1=1",
+                    "compatibilityLevel": 20
+                }
+            }
+        }
+    ]
+}
