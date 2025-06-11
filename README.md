@@ -1,4 +1,4 @@
-# azure_servicebus_queue_devcontainer
+# azure_servicebus_topics_devcontainer
 
 Before testing or running the contained code you will need to do the following
 - Create an azure resource group for the service bus
